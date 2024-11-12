@@ -1,0 +1,9 @@
+[package]
+name = "sparse-slot"
+version = "0.0.1"
+edition = "2021"
+license = "MIT"
+description = "minimal sparse slot (sparse vector)"
+repository = "https://github.com/piot/sparse-slot"
+
+[dependencies]
