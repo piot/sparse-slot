@@ -65,8 +65,50 @@ impl Id {
 }
 
 impl From<((usize, u16),)> for Id {
-    fn from(((index, generation), ): ((usize, u16),)) -> Self {
+    fn from(((index, generation),): ((usize, u16),)) -> Self {
         Self { index, generation }
+    }
+}
+
+pub struct Iter<'a, T> {
+    items: std::slice::Iter<'a, Entry<T>>,
+    index: usize,
+}
+
+impl<'a, T> Iterator for Iter<'a, T> {
+    type Item = (Id, &'a T);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        loop {
+            let entry = self.items.next()?;
+            let current_index = self.index;
+            self.index += 1;
+
+            if let Some(ref item) = entry.item {
+                return Some((Id::new(current_index, entry.generation), item));
+            }
+        }
+    }
+}
+
+pub struct IterMut<'a, T> {
+    items: std::slice::IterMut<'a, Entry<T>>,
+    index: usize,
+}
+
+impl<'a, T> Iterator for IterMut<'a, T> {
+    type Item = (Id, &'a mut T);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        loop {
+            let entry = self.items.next()?;
+            let current_index = self.index;
+            self.index += 1;
+
+            if let Some(ref mut item) = entry.item {
+                return Some((Id::new(current_index, entry.generation), item));
+            }
+        }
     }
 }
 
@@ -170,25 +212,18 @@ impl<T> SparseSlot<T> {
         item
     }
 
-    pub fn iter(&self) -> impl Iterator<Item=(Id, &T)> {
-        self.items.iter().enumerate().filter_map(|(idx, entry)| {
-            entry
-                .item
-                .as_ref()
-                .map(|item| (Id::new(idx, entry.generation), item))
-        })
+    pub fn iter(&self) -> Iter<'_, T> {
+        Iter {
+            items: self.items.iter(),
+            index: 0,
+        }
     }
 
-    pub fn iter_mut(&mut self) -> impl Iterator<Item=(Id, &mut T)> {
-        self.items
-            .iter_mut()
-            .enumerate()
-            .filter_map(|(idx, entry)| {
-                entry
-                    .item
-                    .as_mut()
-                    .map(|item| (Id::new(idx, entry.generation), item))
-            })
+    pub fn iter_mut(&mut self) -> IterMut<'_, T> {
+        IterMut {
+            items: self.items.iter_mut(),
+            index: 0,
+        }
     }
 
     pub fn capacity(&self) -> usize {
