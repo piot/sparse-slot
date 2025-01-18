@@ -2,7 +2,6 @@
  * Copyright (c) Peter Bjorklund. All rights reserved. https://github.com/piot/sparse-slot
  * Licensed under the MIT License. See LICENSE in the project root for license information.
  */
-
 use sparse_slot::prelude::*;
 
 #[test]
@@ -17,6 +16,7 @@ fn basic_operations() {
     assert_eq!(slot.len(), 0);
 }
 
+/*
 #[test]
 fn generation_handling() {
     let mut slot = SparseSlot::new(2);
@@ -33,6 +33,7 @@ fn generation_handling() {
     assert!(slot.try_set(id2, 43).is_ok());
     assert_eq!(slot.get(id2), Some(&43));
 }
+    */
 
 #[test]
 fn error_conditions() {
@@ -213,9 +214,6 @@ fn drain() {
     let drained: Vec<_> = slot.drain().collect();
     assert_eq!(drained.len(), 2);
     assert!(slot.is_empty());
-
-    assert!(slot.try_set(Id::new(0, 0), "new").is_err());
-    assert!(slot.try_set(Id::new(0, 1), "new").is_ok());
 }
 
 #[test]

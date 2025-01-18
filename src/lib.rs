@@ -10,7 +10,7 @@ use std::fmt::{Debug, Display, Formatter};
 pub enum SparseSlotError {
     IndexOutOfBounds(usize),
     Occupied(usize),
-    GenerationMismatch(u16),
+    //    GenerationMismatch(u8),
     IllegalZeroGeneration,
 }
 
@@ -36,7 +36,7 @@ pub enum SparseSlotError {
 
 pub struct Id {
     pub index: usize,
-    pub generation: u16,
+    pub generation: u8,
 }
 
 impl Display for Id {
@@ -47,7 +47,7 @@ impl Display for Id {
 
 impl Id {
     #[must_use]
-    pub fn new(index: usize, generation: u16) -> Self {
+    pub fn new(index: usize, generation: u8) -> Self {
         Self { index, generation }
     }
 
@@ -57,7 +57,7 @@ impl Id {
     }
 
     #[must_use]
-    pub fn generation(&self) -> u16 {
+    pub fn generation(&self) -> u8 {
         self.generation
     }
 
@@ -70,8 +70,8 @@ impl Id {
     }
 }
 
-impl From<((usize, u16),)> for Id {
-    fn from(((index, generation),): ((usize, u16),)) -> Self {
+impl From<((usize, u8),)> for Id {
+    fn from(((index, generation),): ((usize, u8),)) -> Self {
         Self { index, generation }
     }
 }
@@ -206,7 +206,7 @@ impl<'a, T> Iterator for ValuesMut<'a, T> {
 
 #[derive(PartialEq, Eq, Debug)]
 struct Entry<T> {
-    pub generation: u16,
+    pub generation: u8,
     pub item: Option<T>,
     pub next_index: Option<usize>,
     pub previous_index: Option<usize>,
