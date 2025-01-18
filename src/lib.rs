@@ -4,7 +4,7 @@
  */
 pub mod prelude;
 
-use std::fmt::Debug;
+use std::fmt::{Debug, Display, Formatter};
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum SparseSlotError {
@@ -37,6 +37,12 @@ pub enum SparseSlotError {
 pub struct Id {
     pub index: usize,
     pub generation: u16,
+}
+
+impl Display for Id {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:0>4}:{:04X}", self.index, self.generation)
+    }
 }
 
 impl Id {
@@ -198,7 +204,7 @@ impl<'a, T> Iterator for ValuesMut<'a, T> {
     }
 }
 
-#[derive(Debug)]
+#[derive(PartialEq, Eq, Debug)]
 struct Entry<T> {
     pub generation: u16,
     pub item: Option<T>,
@@ -217,7 +223,7 @@ impl<T> Default for Entry<T> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct SparseSlot<T> {
     items: Vec<Entry<T>>,
     first_occupied: Option<usize>,
@@ -266,7 +272,7 @@ impl<T> SparseSlot<T> {
                 return Err(SparseSlotError::Occupied(id.index));
             }
             if entry.generation != id.generation {
-                return Err(SparseSlotError::GenerationMismatch(entry.generation));
+                // return Err(SparseSlotError::GenerationMismatch(entry.generation));
             }
         }
 
@@ -284,6 +290,7 @@ impl<T> SparseSlot<T> {
         {
             let entry = &mut self.items[id.index];
             entry.item = Some(item);
+            entry.generation = id.generation;
             entry.previous_index = prev_index;
             entry.next_index = next_index;
         }
